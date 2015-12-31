@@ -9,8 +9,4 @@ public class GenerateFinalZip extends BaseStep {
 
 		return result;
 	}
-
-	public void cleanup() {
-
-	}
 }

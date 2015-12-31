@@ -1,3 +1,3 @@
 @ECHO OFF
 
-java -jar com.danwatling.apkdecompiler.Main %$
+java -jar ApkDecompiler.jar %$

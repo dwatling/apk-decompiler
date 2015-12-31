@@ -9,8 +9,4 @@ public class DecompileClasses extends BaseStep {
 
 		return result;
 	}
-
-	public void cleanup() {
-
-	}
 }

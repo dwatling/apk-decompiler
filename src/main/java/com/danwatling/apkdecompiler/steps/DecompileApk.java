@@ -1,5 +1,6 @@
 package com.danwatling.apkdecompiler.steps;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,10 +9,11 @@ import java.util.List;
 public class DecompileApk extends BaseStep {
 	List<BaseStep> steps;
 
-	public DecompileApk(String keyword) {
-		String apkFilename = keyword + ".apk";
+	public DecompileApk(String filter) {
+		String apkFilename = filter + ".apk";
 
-		steps.add(new FetchApk(keyword, apkFilename));
+		steps = new ArrayList<>();
+		steps.add(new FetchApk(filter, apkFilename));
 		steps.add(new ExtractClasses(apkFilename));
 		steps.add(new DecompileClasses());
 		steps.add(new ExtractResources(apkFilename));
@@ -29,9 +31,5 @@ public class DecompileApk extends BaseStep {
 		}
 
 		return result;
-	}
-
-	public void cleanup() {
-
 	}
 }

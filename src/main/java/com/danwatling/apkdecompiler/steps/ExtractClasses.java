@@ -15,8 +15,4 @@ public class ExtractClasses extends BaseStep {
 
 		return result;
 	}
-
-	public void cleanup() {
-
-	}
 }

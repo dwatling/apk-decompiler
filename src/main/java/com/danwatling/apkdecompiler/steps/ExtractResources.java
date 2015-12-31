@@ -14,8 +14,4 @@ public class ExtractResources extends BaseStep {
 
 		return result;
 	}
-
-	public void cleanup() {
-
-	}
 }
