@@ -47,8 +47,7 @@ public class Adb {
 				}
 
 				// We consider the process done when we see the command prompt again
-				// TODO - Ensure the prompt doesn't change!
-				if (result.toString().contains("shell@android:/ $") || result.toString().contains("100%")) {
+				if (result.toString().contains("shell@") || result.toString().contains("100%")) {
 					done = true;
 				}
 			}
@@ -96,7 +95,7 @@ public class Adb {
 		return result;
 	}
 
-	public boolean pull(AndroidPackage androidPackage, String destOnDisk) {
+	public boolean pull(AndroidPackage androidPackage, File destOnDisk) {
 		boolean result = false;
 		try {
 			Logger.info("Downloading " + androidPackage.getPath());
@@ -106,7 +105,8 @@ public class Adb {
 
 
 				File localApk = new File(new File(".").getCanonicalPath() + File.separator + androidPackage.getFilename());
-				localApk.renameTo(new File(new File(".").getCanonicalPath() + File.separator + destOnDisk));
+				destOnDisk.getParentFile().mkdirs();
+				localApk.renameTo(destOnDisk);
 
 				result = true;
 			}

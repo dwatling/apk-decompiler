@@ -4,17 +4,21 @@ import com.danwatling.apkdecompiler.Logger;
 import com.danwatling.apkdecompiler.adb.Adb;
 import com.danwatling.apkdecompiler.adb.AndroidPackage;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
  * Pulls Apk from device
  */
 public class FetchApk extends BaseStep {
+	private File workFolder = null;
 	private String filter = null;
-	private String apkFile = null;
+	private File apkFile = null;
 	private Adb adb = null;
 
-	public FetchApk(String filter, String apkFile) {
+	public FetchApk(File workFolder, String filter, File apkFile) {
+		this.workFolder = workFolder;
 		this.filter = filter;
 		this.apkFile = apkFile;
 
