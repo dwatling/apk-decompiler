@@ -2,6 +2,7 @@ package com.danwatling.apkdecompiler.steps;
 
 import com.danwatling.apkdecompiler.Logger;
 import com.googlecode.dex2jar.tools.Dex2jarCmd;
+import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -27,10 +28,17 @@ public class ExtractClasses extends BaseStep {
 		boolean result = true;
 
 		File classesDexFile = extractClassesDex();
-		runDex2Jar(classesDexFile);
-		cleanup(classesDexFile);
+		File classesJarFile = runDex2Jar(classesDexFile);
+		extractJarFile(classesJarFile);
+		cleanup(classesDexFile, classesJarFile);
 
 		return result;
+	}
+
+	private void cleanup(File... filesToDelete) {
+		for (File f : filesToDelete) {
+			f.delete();
+		}
 	}
 
 	private File extractClassesDex() {
@@ -44,7 +52,7 @@ public class ExtractClasses extends BaseStep {
 			ZipEntry classesDex = apkFile.getEntry("classes.dex");
 
 			entryStream = apkFile.getInputStream(classesDex);
-			result = new File(this.workFolder.getCanonicalPath() + File.separator + "classes.dex");
+			result = new File(this.workFolder.getAbsolutePath() + File.separator + "classes.dex");
 			outputStream = new FileOutputStream(result);
 			IOUtils.copy(entryStream, outputStream);
 		} catch (IOException ex) {
@@ -58,18 +66,24 @@ public class ExtractClasses extends BaseStep {
 		return result;
 	}
 
-	private void cleanup(File classesDexFile) {
-		classesDexFile.delete();
-	}
-
-	private void runDex2Jar(File classesDexFile) {
+	private File runDex2Jar(File classesDexFile) {
+		File result = null;
 		Logger.info("Running dex2jar");
 
+		result = new File(this.workFolder.getAbsolutePath() + File.separator + "classes.jar");
+		String[] args = {"--force", "-o", result.getAbsolutePath(), classesDexFile.getAbsolutePath()};
+		Dex2jarCmd.main(args);
+
+		return result;
+	}
+
+	private void extractJarFile(File classesJarFile) {
+		Logger.info("Extracting classes");
 		try {
-			String[] args = {"--force", "-o", this.workFolder.getCanonicalPath() + File.separator + "classes.jar", classesDexFile.getCanonicalPath()};
-			Dex2jarCmd.main(args);
-		} catch (Throwable t) {
-			Logger.error("Unable to convert classes.dex into Java class files.", t);
+			net.lingala.zip4j.core.ZipFile zf = new net.lingala.zip4j.core.ZipFile(classesJarFile);
+			zf.extractAll(this.workFolder.getAbsolutePath() + File.separator + "classes");
+		} catch (ZipException ex) {
+			Logger.error("Unable to extract classes.", ex);
 		}
 	}
 }

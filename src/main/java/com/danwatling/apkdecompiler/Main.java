@@ -4,21 +4,23 @@ import com.danwatling.apkdecompiler.steps.DecompileApk;
 
 public class Main {
 	public static void main(String[] args) {
-		String filter = "netflix";
+		String filter = null;
 
-		if (args.length >= 1) {
+		if (args.length == 0) {
+			Logger.info("Usage: decompile <filter>");
+		} else {
 			filter = args[0];
-		}
 
-		DecompileApk decompiler = new DecompileApk(filter);
-		long start = System.currentTimeMillis();
-		boolean result = decompiler.run();
+			DecompileApk decompiler = new DecompileApk(filter);
+			long start = System.currentTimeMillis();
+			boolean result = decompiler.run();
 
-		long end = System.currentTimeMillis();
+			long end = System.currentTimeMillis();
 
-		System.out.println("Process took: " + (end - start) + " ms.");
-		if (!result) {
-			System.err.println("Something bad happened!");
+			Logger.info("Process took: " + (end - start) + " ms.");
+			if (!result) {
+				Logger.info("Something bad happened!");
+			}
 		}
 	}
 }

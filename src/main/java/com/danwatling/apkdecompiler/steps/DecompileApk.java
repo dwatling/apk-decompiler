@@ -17,7 +17,7 @@ public class DecompileApk extends BaseStep {
 		steps = new ArrayList<>();
 		steps.add(new FetchApk(workFolder, filter, apkFile));
 		steps.add(new ExtractClasses(workFolder, apkFile));
-		steps.add(new DecompileClasses(workFolder));
+//		steps.add(new DecompileClasses(workFolder));
 		steps.add(new ExtractResources(workFolder, apkFile));
 		steps.add(new GenerateFinalZip(workFolder));
 	}
