@@ -30,6 +30,9 @@ public class FetchApk extends BaseStep {
 
 		try {
 			List<AndroidPackage> packages = adb.listPackages(this.filter);
+			if (packages == null) {
+				return false;
+			}
 
 			if (packages.size() > 1) {
 				Logger.info("Found " + packages.size() + " applications that match: " + this.filter);

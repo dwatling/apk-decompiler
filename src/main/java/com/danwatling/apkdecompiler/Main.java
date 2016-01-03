@@ -13,14 +13,11 @@ public class Main {
 
 			DecompileApk decompiler = new DecompileApk(filter);
 			long start = System.currentTimeMillis();
-			boolean result = decompiler.run();
+			decompiler.run();
 
 			long end = System.currentTimeMillis();
 
 			Logger.info("Process took: " + (end - start) + " ms.");
-			if (!result) {
-				Logger.info("Something bad happened!");
-			}
 		}
 	}
 }

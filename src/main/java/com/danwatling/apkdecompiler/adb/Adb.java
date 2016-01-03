@@ -4,6 +4,7 @@ import com.danwatling.apkdecompiler.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ public class Adb {
 
 	public Adb() {
 		try {
-			process = Runtime.getRuntime().exec("adb shell");
+			process = new ProcessBuilder().command(Arrays.asList("adb","shell")).redirectErrorStream(true).start();
 			getProcessOutput(process.getInputStream());
 		} catch (IOException ex) {
 			Logger.error("Unable to run 'adb shell'", ex);
@@ -50,6 +51,11 @@ public class Adb {
 				if (result.toString().contains("shell@") || result.toString().contains("100%")) {
 					done = true;
 				}
+
+				if (result.toString().contains("error: no devices found")) {
+					Logger.error("No devices found. Do you have any connected?");
+					done = true;
+				}
 			}
 		} catch (IOException ex) {
 			Logger.error("Unable to read line from adb!", ex);
@@ -58,9 +64,9 @@ public class Adb {
 		return result.toString();
 	}
 
-	private void exec(String command) {
+	private boolean exec(String command) {
 		if (!process.isAlive()) {
-			Logger.error("adb process is not alive!");
+			return false;
 		}
 
 		try {
@@ -70,10 +76,14 @@ public class Adb {
 		} catch (IOException ex) {
 			Logger.error("Unable to run '" + command + "'", ex);
 		}
+
+		return true;
 	}
 
 	public List<AndroidPackage> listPackages(String filter) {
-		exec("pm list packages -3 -f " + filter);
+		if (!exec("pm list packages -3 -f " + filter)) {
+			return null;
+		}
 		String output = getProcessOutput(process.getInputStream());
 		BufferedReader reader = new BufferedReader(new StringReader(output));
 		Logger.info(output);

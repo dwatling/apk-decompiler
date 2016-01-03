@@ -10,8 +10,28 @@
 		<project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>apkdecompiler</id>
+			<url>file://${project.basedir}/repo</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4.3</version>
+				<configuration>
+					<resources>
+						<resource>
+							<directory>${project.basedir}/src/main/resources</directory>
+						</resource>
+					</resources>
+					<outputDirectory>${project.build.directory}</outputDirectory>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -23,19 +43,29 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
+				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.6</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>com.danwatling.apkdecompiler.Main</mainClass>
-						</manifest>
-						<manifestEntries>
-							<Class-Path>lib/</Class-Path>
-						</manifestEntries>
-					</archive>
-				</configuration>
+				<executions>
+					<execution>
+						<id>create-my-bundle</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<archive>
+								<manifest>
+									<mainClass>com.danwatling.apkdecompiler.Main</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -50,6 +80,41 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>brut</groupId>
+			<artifactId>apktool</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.dex2jar</groupId>
+			<artifactId>tools</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.dex2jar</groupId>
+			<artifactId>base-cmd</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.dex2jar</groupId>
+			<artifactId>translator</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.dex2jar</groupId>
+			<artifactId>reader</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.dex2jar</groupId>
+			<artifactId>reader-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.dex2jar</groupId>
+			<artifactId>ir</artifactId>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId>
