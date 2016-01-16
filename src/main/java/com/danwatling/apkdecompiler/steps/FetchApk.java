@@ -26,22 +26,23 @@ public class FetchApk extends BaseStep {
 	}
 
 	public boolean run() {
-		boolean result = true;
+		boolean result = false;
 
 		try {
 			List<AndroidPackage> packages = adb.listPackages(this.filter);
-			if (packages == null) {
-				return false;
-			}
-
-			if (packages.size() > 1) {
-				Logger.info("Found " + packages.size() + " applications that match: " + this.filter);
-				for (AndroidPackage p : packages) {
-					Logger.info("\t" + p.getPath() + " - " + p.getPackage());
+			if (packages.size() > 0) {
+				if (packages.size() > 1) {
+					Logger.info("Found " + packages.size() + " applications that match: " + this.filter);
+					for (AndroidPackage p : packages) {
+						Logger.info("\t" + p.getPath() + " - " + p.getPackage());
+					}
 				}
-			}
 
-			adb.pull(packages.get(0), this.apkFile);
+				adb.pull(packages.get(0), this.apkFile);
+				result = true;
+			} else {
+				Logger.info("No applications matched '" + this.filter + "'");
+			}
 		} finally {
 			adb.exit();
 		}

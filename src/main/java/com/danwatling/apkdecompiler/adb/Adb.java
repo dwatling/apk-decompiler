@@ -81,26 +81,26 @@ public class Adb {
 	}
 
 	public List<AndroidPackage> listPackages(String filter) {
-		if (!exec("pm list packages -3 -f " + filter)) {
-			return null;
-		}
-		String output = getProcessOutput(process.getInputStream());
-		BufferedReader reader = new BufferedReader(new StringReader(output));
-		Logger.info(output);
-
 		List<AndroidPackage> result = new ArrayList<>();
-		String line;
-		try {
-			while ((line = reader.readLine()) != null) {
-				if (line.trim().length() > 0) {
-					AndroidPackage pkg = new AndroidPackage(line);
-					if (pkg.getPath() != null) {
-						result.add(pkg);
+
+		if (exec("pm list packages -3 -f " + filter)) {
+			String output = getProcessOutput(process.getInputStream());
+			BufferedReader reader = new BufferedReader(new StringReader(output));
+			Logger.info(output);
+
+			String line;
+			try {
+				while ((line = reader.readLine()) != null) {
+					if (line.trim().length() > 0) {
+						AndroidPackage pkg = new AndroidPackage(line);
+						if (pkg.getPath() != null) {
+							result.add(pkg);
+						}
 					}
 				}
+			} catch (IOException ex) {
+				Logger.error("Unable to process output of 'pm list packages'", ex);
 			}
-		} catch (IOException ex) {
-			Logger.error("Unable to process output of 'pm list packages'", ex);
 		}
 		return result;
 	}
