@@ -111,7 +111,7 @@ public class Adb {
 			Logger.info("Downloading " + androidPackage.getPath());
 			Process p = Runtime.getRuntime().exec("adb pull -p -a " + androidPackage.getPath());
 			if (p.isAlive()) {
-				getProcessOutput(p.getErrorStream(), true);
+				getProcessOutput(p.getInputStream(), true);
 
 
 				File localApk = new File(new File(".").getCanonicalPath() + File.separator + androidPackage.getFilename());
