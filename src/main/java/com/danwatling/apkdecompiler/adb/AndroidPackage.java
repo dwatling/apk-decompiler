@@ -9,7 +9,7 @@ public class AndroidPackage {
 	private String appPackage;
 
 	public AndroidPackage(String line) {
-		Pattern pattern = Pattern.compile("package:(.[^=]*)=(.*)");
+		Pattern pattern = Pattern.compile("package:(.*\\.apk)=(.*)");
 		Matcher matcher = pattern.matcher(line);
 		if (matcher.matches()) {
 			path = matcher.group(1);

@@ -1,3 +1,5 @@
+# APK Decompiler
+
 This project makes it easy to convert an installed Android app that was built with the Android SDK into readable source files.
 
 How to use:
@@ -14,3 +16,7 @@ Some of the dependent projects are not able to parse all APKs, so it isn't guara
 APK Decompiler wraps the following projects:
 * dex2jar (https://bitbucket.org/pxb1988/dex2jar) - Generates Java .class files
 * apktool (https://ibotpeaches.github.io/Apktool/) - Generates readable resource files
+
+## Building
+
+```mvn clean package -U```

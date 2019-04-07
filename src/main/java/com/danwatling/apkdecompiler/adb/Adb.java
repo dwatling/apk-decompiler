@@ -10,106 +10,42 @@ import java.util.List;
 /**
  * Java wrapper for Adb process.
  */
-public class Adb {
-	Process process;
+public class Adb extends CustomStreamReader {
 
 	public Adb() {
+	}
+
+	public AdbShell shell(String serialNumber) {
+		return new AdbShell(serialNumber);
+	}
+
+	public List<String> getDevices() {
+		List<String> result = new ArrayList<>();
 		try {
-			process = new ProcessBuilder().command(Arrays.asList("adb","shell")).redirectErrorStream(true).start();
-			getProcessOutput(process.getInputStream());
-		} catch (IOException ex) {
-			Logger.error("Unable to run 'adb shell'", ex);
-		}
-	}
-
-	private String getProcessOutput(InputStream stream) {
-		return getProcessOutput(stream, false);
-	}
-	private String getProcessOutput(InputStream stream, boolean printWhileRunning) {
-		ByteArrayOutputStream result = new ByteArrayOutputStream();
-
-		try {
-			byte[] bytes = new byte[8192];
-			boolean done = false;
-			while (!done) {
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException ex) {
-					// ignore
-				}
-
-				int count = stream.read(bytes, 0, bytes.length);
-				if (count > 0) {
-					result.write(bytes, 0, count);
-				}
-
-				if (printWhileRunning) {
-					Logger.info(result.toString());
-				}
-
-				// We consider the process done when we see the command prompt again
-				if (result.toString().contains("shell@") || result.toString().contains("100%")) {
-					done = true;
-				}
-
-				if (result.toString().contains("error: no devices found")) {
-					Logger.error("No devices found. Do you have any connected?");
-					done = true;
-				}
-			}
-		} catch (IOException ex) {
-			Logger.error("Unable to read line from adb!", ex);
-		}
-
-		return result.toString();
-	}
-
-	private boolean exec(String command) {
-		if (!process.isAlive()) {
-			return false;
-		}
-
-		try {
-			process.getOutputStream().write(command.getBytes());
-			process.getOutputStream().write(System.lineSeparator().getBytes());
-			process.getOutputStream().flush();
-		} catch (IOException ex) {
-			Logger.error("Unable to run '" + command + "'", ex);
-		}
-
-		return true;
-	}
-
-	public List<AndroidPackage> listPackages(String filter) {
-		List<AndroidPackage> result = new ArrayList<>();
-
-		if (exec("pm list packages -3 -f " + filter)) {
+			Process process = new ProcessBuilder().command(Arrays.asList("adb", "devices")).redirectErrorStream(true).start();
 			String output = getProcessOutput(process.getInputStream());
-			BufferedReader reader = new BufferedReader(new StringReader(output));
-			Logger.info(output);
+			System.out.println(output);
 
-			String line;
-			try {
-				while ((line = reader.readLine()) != null) {
-					if (line.trim().length() > 0) {
-						AndroidPackage pkg = new AndroidPackage(line);
-						if (pkg.getPath() != null) {
-							result.add(pkg);
-						}
-					}
+			String[] lines = output.split("\n");
+			for (String line : lines) {
+				String[] tokens = line.split("\t");
+				if (tokens.length == 2) {
+					System.out.println("Found device: " + tokens[0]);
+					result.add(tokens[0]);
 				}
-			} catch (IOException ex) {
-				Logger.error("Unable to process output of 'pm list packages'", ex);
 			}
+		} catch (IOException ex) {
+			Logger.error("Unable to fetch device list", ex);
 		}
 		return result;
 	}
 
-	public boolean pull(AndroidPackage androidPackage, File destOnDisk) {
+	public boolean pull(String deviceSerial, AndroidPackage androidPackage, File destOnDisk) {
 		boolean result = false;
 		try {
 			Logger.info("Downloading " + androidPackage.getPath());
-			Process p = Runtime.getRuntime().exec("adb pull -p -a " + androidPackage.getPath());
+			String command = "adb -s " + deviceSerial + " pull -p -a " + androidPackage.getPath();
+			Process p = Runtime.getRuntime().exec(command);
 			if (p.isAlive()) {
 				getProcessOutput(p.getInputStream(), true);
 
@@ -125,9 +61,5 @@ public class Adb {
 		}
 
 		return result;
-	}
-
-	public void exit() {
-		exec("exit");
 	}
 }
